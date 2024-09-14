@@ -1,7 +1,12 @@
 package dev.coms4156.project.individualproject;
 
-import java.io.*;
+import java.io.Serial;
+import java.io.Serializable;
 
+/**
+ * Class represents a course with fields for the instructor, location,
+ * time slot, enrollment capacity, and enrolled student count.
+ */
 public class Course implements Serializable {
 
   /**
@@ -17,37 +22,45 @@ public class Course implements Serializable {
     this.instructorName = instructorName;
     this.courseTimeSlot = timeSlot;
     this.enrollmentCapacity = capacity;
-    this.enrolledStudentCount = 500;
+    this.enrolledStudentCount = 0;
   }
 
- /**
+  /**
    * Enrolls a student in the course if there is space available.
    *
    * @return true if the student is successfully enrolled, false otherwise.
    */
   public boolean enrollStudent() {
-   enrolledStudentCount++;
-    return false;
+    if (enrolledStudentCount < enrollmentCapacity) {
+      enrolledStudentCount++;
+      return true;
+    } else {
+      return false;
+    }
   }
 
- /**
+  /**
    * Drops a student from the course if a student is enrolled.
    *
    * @return true if the student is successfully dropped, false otherwise.
    */
   public boolean dropStudent() {
-    enrolledStudentCount--;
-    return false;
+    if (enrolledStudentCount > 0) {
+      enrolledStudentCount--;
+      return true;
+    } else {
+      return false;
+    }
   }
 
 
   public String getCourseLocation() {
-    return this.instructorName;
+    return this.courseLocation;
   }
 
 
   public String getInstructorName() {
-    return this.courseLocation;
+    return this.instructorName;
   }
 
 
@@ -57,7 +70,8 @@ public class Course implements Serializable {
 
 
   public String toString() {
-    return "\nInstructor: " + instructorName +  "; Location: "  + courseLocation +  "; Time: " + courseTimeSlot;
+    return "\nInstructor: " + instructorName +  "; Location: "  + courseLocation +  "; Time: "
+        + courseTimeSlot;
   }
 
 
@@ -92,4 +106,13 @@ public class Course implements Serializable {
   private String courseLocation;
   private String instructorName;
   private String courseTimeSlot;
+
+  public int getEnrollmentCapacity() {
+    return enrollmentCapacity;
+  }
+
+  public int getEnrolledStudentCount() {
+    return enrolledStudentCount;
+  }
+
 }

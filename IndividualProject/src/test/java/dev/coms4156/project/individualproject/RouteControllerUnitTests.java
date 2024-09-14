@@ -1,65 +1,41 @@
 package dev.coms4156.project.individualproject;
 
-import jakarta.annotation.PreDestroy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.util.HashMap;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Class contains all the startup logic for the application.
- * DO NOT MODIFY ANYTHING BELOW THIS POINT WITH REGARD TO FUNCTIONALITY
- * YOU MAY MAKE STYLE/REFACTOR MODIFICATIONS AS NEEDED
+ * Class is a unit test class designed to test the behavior of the Route Controller class.
  */
-@SpringBootApplication
-public class IndividualProjectApplication implements CommandLineRunner {
+@SpringBootTest
+@ContextConfiguration
+public class RouteControllerUnitTests {
 
   /**
-   * The main launcher for the service all it does
-   * is make a call to the overridden run method.
-   *
-   * @param args A {@code String[]} of any potential
-   *             runtime arguments
+   * Initializing the variables.
    */
+  public static RouteController testRouteController;
+  public static Department testDepartment;
+  public static MyFileDatabase testMyFileDatabase;
 
-  public static void main(String[] args) {
-    SpringApplication.run(IndividualProjectApplication.class, args);
+  /**
+   * Initializing the route controller.
+   */
+  @BeforeAll
+  public static void setupRouteControllerForTesting() {
+    testRouteController = new RouteController();
   }
 
   /**
-   * This contains all the setup logic, it will mainly be focused
-   * on loading up and creating an instance of the database based
-   * off a saved file or will create a fresh database if the file
-   * is not present.
-   *
-   * @param args A {@code String[]} of any potential runtime args
-   */
-
-  public void run(String[] args) {
-    for (String arg : args) {
-      if (arg.equals("setup")) {
-        myFileDatabase = new MyFileDatabase(1, "./data.txt");
-        resetDataFile();
-        System.out.println("System Setup");
-        return;
-      }
-    }
-    myFileDatabase = new MyFileDatabase(0, "./data.txt");
-    System.out.println("Start up");
-  }
-
-  /**
-   * Overrides the database reference, used when testing.
-   *
-   * @param testData A {@code MyFileDatabase} object referencing test data.
-   */
-  public static void overrideDatabase(MyFileDatabase testData) {
-    myFileDatabase = testData;
-    saveData = false;
-  }
-
-  /**
-   * Allows for data to be reset in event of errors.
+   * Function to initialize the databse.
    */
   public void resetDataFile() {
     String[] times = {"11:40-12:55", "4:10-5:25", "10:10-11:25", "2:40-3:55"};
@@ -278,26 +254,163 @@ public class IndividualProjectApplication implements CommandLineRunner {
     courses.put("4236", psyc4236);
     courses.put("4493", psyc4493);
 
-    Department psyc = new Department("PSYC", courses, "Nim Tottenham", 437);
+    Department psyc = new Department("PSYC", courses, "Nim Tottenham",
+        437);
     mapping.put("PSYC", psyc);
 
-    myFileDatabase.setMapping(mapping);
+    testMyFileDatabase.setMapping(mapping);
   }
 
   /**
-   * This contains all the overheading teardown logic, it will
-   * mainly be focused on saving all the created user data to a
-   * file, so it will be ready for the next setup.
+   * Initializes the database.
    */
-  @PreDestroy
-  public void onTermination() {
-    System.out.println("Termination");
-    if (saveData) {
-      myFileDatabase.saveContentsToFile();
-    }
+  @BeforeEach
+  public void initializeDatabase() {
+    testMyFileDatabase = new MyFileDatabase(1, "./mock_data.txt");
+    resetDataFile();
+    IndividualProjectApplication.overrideDatabase(testMyFileDatabase);
   }
 
-  //Database Instance
-  public static MyFileDatabase myFileDatabase;
-  private static boolean saveData = true;
+  @Test
+  public void testRetrieveCourse() {
+    ResponseEntity<?> response = testRouteController.retrieveCourse("PHYS",
+        2802);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testRetrieveCourse2() {
+    ResponseEntity<?> response = testRouteController.retrieveCourse("PHYS",
+        2804);
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testRetrieveDepartment() {
+    ResponseEntity<?> response = testRouteController.retrieveDepartment("PHYS");
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testRetrieveDepartment2() {
+    ResponseEntity<?> response = testRouteController.retrieveDepartment("PYSG");
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testIsCourseFull() {
+    ResponseEntity<?> response = testRouteController.isCourseFull("PHYS", 2802);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testIsCourseFull2() {
+    ResponseEntity<?> response = testRouteController.isCourseFull("PHYS", 2502);
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testGetMajorCtFromDept() {
+    ResponseEntity<?> response = testRouteController.getMajorCtFromDept("PHYS");
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testGetMajorCtFromDept2() {
+    ResponseEntity<?> response = testRouteController.getMajorCtFromDept("PHOS");
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+
+  @Test
+  public void testIdentifyDeptChair() {
+    ResponseEntity<?> response = testRouteController.identifyDeptChair("PHYS");
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testIdentifyDeptChair2() {
+    ResponseEntity<?> response = testRouteController.identifyDeptChair("PHYL");
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testFindCourseLocation() {
+    ResponseEntity<?> response = testRouteController.findCourseLocation("PHYS", 2802);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testFindCourseLocation2() {
+    ResponseEntity<?> response = testRouteController.findCourseLocation("PHYS", 2801);
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testFindCourseInstructor() {
+    ResponseEntity<?> response = testRouteController.findCourseInstructor("PHYS", 2802);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testFindCourseInstructor2() {
+    ResponseEntity<?> response = testRouteController.findCourseInstructor("ELEN", 1001);
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testFindCourseTime() {
+    ResponseEntity<?> response = testRouteController.findCourseTime("PHYS", 2802);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testFindCourseTime2() {
+    ResponseEntity<?> response = testRouteController.findCourseTime("PHYS", 2892);
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testAddMajorToDept() {
+    ResponseEntity<?> response = testRouteController.addMajorToDept("PHYS");
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testRemoveMajorFromDept() {
+    ResponseEntity<?> response = testRouteController.removeMajorFromDept("PHYS");
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testDropStudent() {
+    ResponseEntity<?> response = testRouteController.dropStudent("PHYS", 2802);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testSetEnrollmentCount() {
+    ResponseEntity<?> response = testRouteController.setEnrollmentCount("PHYS", 2802, 150);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testChangeCourseTime() {
+    ResponseEntity<?> response = testRouteController.changeCourseTime("PHYS", 2802, "1:10-7");
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testChangeCourseTeacher() {
+    ResponseEntity<?> response = testRouteController.changeCourseTeacher("PHYS", 2802, "Pat G "
+        + "Lindemann");
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testChangeCourseLocation() {
+    ResponseEntity<?> response = testRouteController.changeCourseLocation("PHYS", 2802, "NOT 501"
+        + " " + "SCH");
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
 }
