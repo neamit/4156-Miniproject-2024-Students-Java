@@ -377,9 +377,21 @@ public class RouteControllerUnitTests {
   }
 
   @Test
+  public void testAddMajorToDept2() {
+    ResponseEntity<?> response = testRouteController.addMajorToDept("PHYP");
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
   public void testRemoveMajorFromDept() {
     ResponseEntity<?> response = testRouteController.removeMajorFromDept("PHYS");
     assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testRemoveMajorFromDept2() {
+    ResponseEntity<?> response = testRouteController.removeMajorFromDept("ELLN");
+    assertNotEquals(HttpStatus.OK, response.getStatusCode());
   }
 
   @Test
