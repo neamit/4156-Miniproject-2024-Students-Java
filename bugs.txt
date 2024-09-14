@@ -1,0 +1,12 @@
+- Course.java
+    - enrollStudent(): does not check if the student enrollment count is within the capacity and always returns false
+    - dropStudent(): does not check if the student enrollment is above the min and always returns false
+    - the initialized value of enrolledStudentCount is 500
+    - getInstructorName(): returned the course location
+    - getCourseLocation(): returned the instructor name
+- RouteController.java
+    - handleException(Exception e): always returns HTTP status 200 (OK) even upon catching the exception
+    - findCourseTime(): return from TimeSlot() to requestedCourse.getCourseTimeSlot()
+- Department.java
+    - getNumberOfMajors(): was a negative value
+    - getDepartmentChair(): had a string return value instead of the variable
